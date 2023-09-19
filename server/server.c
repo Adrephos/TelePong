@@ -6,6 +6,48 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
+
+// Función que maneja a cada cliente
+void* connectClient(void* arg) {
+  int ConnectFD = *((int*)arg);
+
+  // Read from the client
+  char buffer[1024];
+  ssize_t bytesRead;
+
+  for (;;) {
+    bytesRead = read(ConnectFD, buffer, sizeof(buffer));
+
+    if (bytesRead == -1) {
+      perror("read failed");
+      close(ConnectFD);
+      break;
+    }
+
+    if (bytesRead == 0) {
+      printf("Client disconnected\n");
+      break;
+    } else {
+      buffer[bytesRead] = '\0'; // Null-terminate the received data
+      printf("Received data from client: %s\n", buffer);
+
+      // Write a response back to the client
+      const char *response = "Hello from the server!";
+      ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
+      if (bytesWritten == -1) {
+        perror("write failed");
+        close(ConnectFD);
+        break;
+      }
+    }
+  }
+
+  close(ConnectFD); // Cierra el socket cuando hayas terminado de manejar al cliente
+  return NULL;
+}
+
+
 
 int main(void) {
   struct sockaddr_in sa;
@@ -35,54 +77,21 @@ int main(void) {
 
   for (;;) {
     int ConnectFD = accept(SocketFD, NULL, NULL);
-
     if (ConnectFD == -1) {
       perror("accept failed");
-      close(SocketFD);
-      exit(EXIT_FAILURE);
-    } else {
-      printf("Client connected\n");
+      continue;
     }
 
-    // Read from the client
-    char buffer[1024];
-    ssize_t bytesRead;
+    // Crea un nuevo hilo para manejar al cliente actual
+    pthread_t thread;
+    pthread_create(&thread, NULL, connectClient, (void*)&ConnectFD);
 
-    for (;;) {
-      bytesRead = read(ConnectFD, buffer, sizeof(buffer));
+    // No necesitas hacer un pthread_join aquí
 
-      if (bytesRead == -1) {
-        perror("read failed");
-        close(ConnectFD);
-        continue; // Continue to the next iteration of the loop
-      }
-
-      if (bytesRead == 0) {
-        printf("Client disconnected\n");
-      } else {
-        buffer[bytesRead] = '\0'; // Null-terminate the received data
-        printf("Received data from client: %s\n", buffer);
-
-        // Write a response back to the client
-        const char *response = "Hello from the server!";
-        ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
-        if (bytesWritten == -1) {
-          perror("write failed");
-          close(ConnectFD);
-          continue; // Continue to the next iteration of the loop
-        }
-      }
-    }
-
-    if (shutdown(ConnectFD, SHUT_RDWR) == -1) {
-      perror("shutdown failed");
-      close(ConnectFD);
-      close(SocketFD);
-      exit(EXIT_FAILURE);
-    }
-    close(ConnectFD);
+    printf("Client connected\n");
   }
 
+  // Cierra el socket principal solo cuando desees finalizar el servidor
   close(SocketFD);
   return EXIT_SUCCESS;
 }
