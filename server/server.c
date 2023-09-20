@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "constants.h"
 
 // Función que maneja a cada cliente
 void* connectClient(void* arg) {
@@ -60,7 +61,7 @@ int main(void) {
   memset(&sa, 0, sizeof sa);
 
   sa.sin_family = AF_INET;
-  sa.sin_port = htons(8080);
+  sa.sin_port = htons(PORT);
   sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
   if (bind(SocketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
