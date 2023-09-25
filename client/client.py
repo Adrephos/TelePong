@@ -23,9 +23,6 @@ def main():
             bytes(command_to_send, constants.ENCONDING_FORMAT))
 
         data_received = client_socket.recv(constants.RECV_BUFFER_SIZE)
-        if not data_received:
-            print('Server closed the connection. Exiting...')
-            break  # Exit the loop if the server closed the connection
 
         print(data_received.decode(constants.ENCONDING_FORMAT))
         command_to_send = input()
