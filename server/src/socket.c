@@ -9,9 +9,10 @@
 #include <unistd.h>
 
 #include "../include/socket.h"
+#include "../include/parser.h"
 
 // Send a message to a client
-void *send_msg(void *arg, char *response) {
+void *sendMsg(void *arg, char *response) {
   int ConnectFD = *((int *)arg);
 
   // Read from the client
@@ -29,7 +30,8 @@ void *send_msg(void *arg, char *response) {
 }
 
 // Función que maneja a cada cliente
-void *mange_client(void *arg) {
+void *manageClient(void *arg) {
+	int clientNumber = 0;
   int ConnectFD = *((int *)arg);
 
   // Read from the client
@@ -38,7 +40,6 @@ void *mange_client(void *arg) {
 
   for (;;) {
     bytesRead = read(ConnectFD, buffer, sizeof(buffer));
-		printf("%d", ConnectFD);
 
     if (bytesRead == -1) {
       perror("read failed");
@@ -51,16 +52,8 @@ void *mange_client(void *arg) {
       break;
     } else {
       buffer[bytesRead] = '\0'; // Null-terminate the received data
-      printf("Received data from client: %s\n", buffer);
 
-      // Write a response back to the client
-      const char *response = "Hello from the server!";
-      ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
-      if (bytesWritten == -1) {
-        perror("write failed");
-        close(ConnectFD);
-        break;
-      }
+			clientNumber = parseMessage(arg, buffer);
     }
   }
 
@@ -69,7 +62,7 @@ void *mange_client(void *arg) {
   return NULL;
 }
 
-int init_server(int port) {
+int initServer(int port) {
   struct sockaddr_in sa;
   int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (SocketFD == -1) {
@@ -95,10 +88,11 @@ int init_server(int port) {
     exit(EXIT_FAILURE);
   }
 
+	// Ready
+	printf("Server ready >_<\n");
+
   for (;;) {
     int ConnectFD = accept(SocketFD, NULL, NULL);
-    printf("ConnectFD: %d\n", ConnectFD);
-    printf("SocketFD: %d\n", SocketFD);
     if (ConnectFD == -1) {
       perror("accept failed");
       continue;
@@ -106,7 +100,7 @@ int init_server(int port) {
 
     // Crea un nuevo hilo para manejar al cliente actual
     pthread_t thread;
-    pthread_create(&thread, NULL, mange_client, (void *)&ConnectFD);
+    pthread_create(&thread, NULL, manageClient, (void *)&ConnectFD);
 
     // No necesitas hacer un pthread_join aquí
 

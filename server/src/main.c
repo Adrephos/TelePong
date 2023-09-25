@@ -2,7 +2,7 @@
  #include "../include/constants.h"
 
 int main() {
-	init_server(PORT);
+	initServer(PORT);
 
 	return 0;
 }

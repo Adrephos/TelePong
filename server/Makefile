@@ -9,16 +9,13 @@ BDIR =./bin
 
 LIBS=-lm
 
-_DEPS = socket.h constants.h
+_DEPS = socket.h constants.h game_list.h protocol.h parser.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o socket.o 
+_OBJ = main.o socket.o game_list.o game_list.o protocol.o parser.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-_SRC = main.c socket.c 
-SRC = $(patsubst %,$(SDIR)/%,$(_SRC))
-
-$(ODIR)/%.o: $(SRC) $(DEPS)
+$(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 PongServer: $(OBJ)
