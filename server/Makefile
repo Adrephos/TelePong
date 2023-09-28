@@ -9,10 +9,10 @@ BDIR =./bin
 
 LIBS=-lm
 
-_DEPS = socket.h constants.h game_list.h protocol.h parser.h
+_DEPS = socket.h constants.h game_list.h protocol.h parser.h logfile.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o socket.o game_list.o game_list.o protocol.o parser.o
+_OBJ = main.o socket.o game_list.o game_list.o protocol.o parser.o logfile.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
