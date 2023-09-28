@@ -4,5 +4,12 @@ PORT = 8080
 ENCONDING_FORMAT = "utf-8"
 RECV_BUFFER_SIZE = 1024
 IP_SERVER = '127.0.0.1'
-QUIT = 'QUIT'  # Salida del cliente
 
+# tpp methods
+REGISTER = 'REGISTER'
+CREATE = 'CREATE'
+JOIN = 'JOIN'
+START = 'START'
+POST_STATE = 'POST_STATE'
+END_GAME = 'END_GAME'
+QUIT = 'QUIT'  # Salida del cliente
