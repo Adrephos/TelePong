@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-int parseMessage(void *arg, char *buffer);
+#include "tpp.h"
+
+void parseMessage(player_t* player, char *buffer);
 
 #endif
