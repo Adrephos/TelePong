@@ -7,10 +7,10 @@ LDIR =./lib
 SDIR =./src
 BDIR =./bin
 
-_DEPS = socket.h constants.h game_list.h tpp.h parser.h
+_DEPS = socket.h constants.h game_list.h tpp.h parser.h logfile.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o socket.o game_list.o game_list.o tpp.o parser.o
+_OBJ = main.o socket.o game_list.o game_list.o tpp.o parser.o logfile.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
