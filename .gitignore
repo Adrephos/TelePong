@@ -1,2 +1,4 @@
 client/venv
 client/__pycache__/*
+server/obj/*
+server/logs/*
