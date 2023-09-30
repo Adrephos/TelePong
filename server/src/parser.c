@@ -4,32 +4,36 @@
 
 #include "../include/parser.h"
 
-// From buffer, call the method that corresponds to the message type
-void parseMessage(player_t* player, char *buffer) {
-  char *token;
-  char payload[100];
-  const char s[2] = " ";
+char **parseArgs(char *buffer) {
+	char *token;
+	char *aux = strdup(buffer);
+	const char s[2] = " ";
 
-	// TODO: log message received
-  printf("Parsing message %s\n", buffer);
+	token = strtok(aux, s);
 
-  token = strtok(buffer, s);
-
-	char *msgType = token;
-
-  int i = 0;
-  while (token != NULL) {
-    if (i > 0) {
-			if (i == 1) {
-				strcpy(payload, "");
-			} else if (i > 1) {
-				strcat(payload, s);
-			}
-			strcat(payload, token);
-    }
-    token = strtok(NULL, s);
+	char **gameState = (char**) malloc(6 * sizeof(char*));
+	int i = 0;
+	while (token != NULL) {
+		gameState[i] = token;
+		token = strtok(NULL, s);
 		i++;
-  }
+	}
+
+	return gameState;
+}
+
+// From buffer, call the method that corresponds to the message type
+void parseMessage(player_t *player, char *buffer) {
+	char **parsedArgs = parseArgs(buffer);
+
+  char *msgType = parsedArgs[0];
+	char *payload = parsedArgs[1];
+
+	char *padPos = parsedArgs[2];
+	char *ballX = parsedArgs[3];
+	char *ballY = parsedArgs[4];
+	char *ballDx = parsedArgs[5];
+	char *ballDy = parsedArgs[6];
 
   if (strcmp(msgType, CREATE) == 0) {
     createGame(player);
@@ -38,9 +42,10 @@ void parseMessage(player_t* player, char *buffer) {
   } else if (strcmp(msgType, REGISTER) == 0) {
     registerPlayer(player, payload);
   } else if (strcmp(msgType, QUIT) == 0) {
-		response(player, QUIT, "See yaa!!");
+    response(player, QUIT, "See yaa!!");
   } else {
-		response(player, ERR, "Invalid message type");
+    response(player, ERR, "Invalid message type");
   }
-	return;
+  return;
 }
+

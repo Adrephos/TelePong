@@ -1,12 +1,9 @@
 #include "../include/parser.h"
 #include "../include/socket.h"
+#include "../include/constants.h"
 
 // Send a message to a client
 void *sendMsg(int ConnectFD, char *response) {
-  // Read from the client
-  char buffer[1024];
-
-  ssize_t bytesRead;
   // Write a response back to the client
   ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
   if (bytesWritten == -1) {
@@ -26,7 +23,7 @@ void *manageClient(void *arg) {
   printf("ConnectFD: %d\n", player.ConnectFD);
 
   // Read from the client
-  char buffer[1024];
+  char buffer[RECV_BUFFER_SIZE];
   ssize_t bytesRead;
 
 

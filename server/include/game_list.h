@@ -5,6 +5,7 @@
 typedef struct {
   char *username;
   int ConnectFD;
+  int PlayerNumber;
 } player_t;
 
 typedef struct {

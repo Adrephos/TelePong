@@ -41,6 +41,7 @@ void registerPlayer(player_t *player, char username[]) {
 void createGame(player_t *player) {
   char *gameId = newKey();
 
+	player->PlayerNumber = 1;
   // Create game
   game_t game;
   game.player1 = player;
@@ -65,6 +66,7 @@ void startGame(char *gameId) {
 }
 
 void joinGame(player_t *player, char *gameId) {
+	player->PlayerNumber = 2;
   game_t game = get(gameId);
 
   if (isEmptyGame(game) == 1) {
