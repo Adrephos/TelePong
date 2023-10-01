@@ -12,4 +12,5 @@ JOIN = 'JOIN'
 START = 'START'
 POST_STATE = 'POST_STATE'
 END_GAME = 'END_GAME'
-QUIT = 'QUIT'  # Salida del cliente
+QUIT = 'QUIT'
+ERR = 'ERR'
