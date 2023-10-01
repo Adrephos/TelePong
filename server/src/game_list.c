@@ -1,9 +1,9 @@
+#include "../include/game_list.h"
+#include "../include/constants.h"
+#include "../include/logfile.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "../include/constants.h"
-#include "../include/game_list.h"
 
 int size = 0;                  // Current number of elements in the map
 char keys[GAME_LIST_SIZE][10]; // Array to store the keys or game id
@@ -28,13 +28,12 @@ game_t emptyGame() {
 
 // Function to know if a game is empty
 int isEmptyGame(game_t game) {
-	if (game.player1 == NULL && game.player2 == NULL) {
-		return 1;
-	} else {
-		return 0;
-	}
+  if (game.player1 == NULL && game.player2 == NULL) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
-
 
 // Function to get the index of a key in the keys array
 int getIndex(char key[]) {
@@ -71,14 +70,22 @@ game_t get(char key[]) {
 
 // Function to print the map
 void printGameList() {
+  char *logMsg = malloc(sizeof(char) * 200);
+  char *logMsg2 = malloc(sizeof(char) * 100);
+  strcpy(logMsg, "\n");
+
   for (int i = 0; i < size; i++) {
-		// If not null print
-		if (values[i].player1 != NULL) {
-			printf("Game: %s\n", keys[i]);
-			printf("	Player 1: %s\n", values[i].player1->username);
-			if (values[i].player2 != NULL) {
-				printf("	Player 2: %s\n", values[i].player2->username);
-			}
+    // If not null print
+    if (values[i].player1 != NULL) {
+      sprintf(logMsg2, "			Game: %s\n", keys[i]);
+      strcat(logMsg, logMsg2);
+      sprintf(logMsg2, "			Player 1: %s\n", values[i].player1->username);
+      strcat(logMsg, logMsg2);
+      if (values[i].player2 != NULL) {
+        sprintf(logMsg2, "			Player 2: %s\n", values[i].player2->username);
+        strcat(logMsg, logMsg2);
+      }
     }
   }
+  logWrite("GAME LIST", logMsg);
 }

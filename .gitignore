@@ -1,4 +1,5 @@
-client/venv
-client/__pycache__/*
+client/venv/
+client/__pycache__/
 server/obj/*
 server/logs/*
+.vscode/

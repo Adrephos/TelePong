@@ -1,13 +1,17 @@
 #include "../include/parser.h"
 #include "../include/socket.h"
 #include "../include/constants.h"
+#include "../include/logfile.h"
+#include <stdlib.h>
 
 // Send a message to a client
 void *sendMsg(int ConnectFD, char *response) {
   // Write a response back to the client
+	char *logMsg = malloc(sizeof(char) * 100);
   ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
   if (bytesWritten == -1) {
-    perror("write failed");
+		sprintf(logMsg, "Write failed");
+		logWrite(ERR, logMsg);
     close(ConnectFD);
   }
 
@@ -17,10 +21,12 @@ void *sendMsg(int ConnectFD, char *response) {
 // Función que maneja a cada cliente
 void *manageClient(void *arg) {
   int clientNumber = 0;
+	char *logMsg = malloc(sizeof(char) * 100);
 	// Create player
 	player_t player;
 	player.ConnectFD = *((int *)arg);
-  printf("ConnectFD: %d\n", player.ConnectFD);
+	sprintf(logMsg, "Client connected with FD %d", player.ConnectFD);
+	logWrite(SUCC, logMsg);
 
   // Read from the client
   char buffer[RECV_BUFFER_SIZE];
@@ -31,13 +37,15 @@ void *manageClient(void *arg) {
     bytesRead = read(player.ConnectFD, buffer, sizeof(buffer));
 
     if (bytesRead == -1) {
-      perror("read failed");
+			sprintf(logMsg, "Read failed");
+			logWrite(ERR, logMsg);
       close(player.ConnectFD);
       break;
     }
 
     if (bytesRead == 0) {
-      printf("Client disconnected\n");
+			sprintf(logMsg, "Client disconnected");
+			logWrite(QUIT, logMsg);
       break;
     } else {
       buffer[bytesRead] = '\0'; // Null-terminate the received data
@@ -53,19 +61,17 @@ void *manageClient(void *arg) {
 }
 
 void acceptClientConnection(int SocketFD) {
+	char *logMsg = malloc(sizeof(char) * 100);
   int ConnectFD = accept(SocketFD, NULL, NULL);
   if (ConnectFD == -1) {
-    // TODO: call logger
-    perror("accept failed");
+		sprintf(logMsg, "Accept failed");
+		logWrite(ERR, logMsg);
     return;
   }
 
   // Crea un nuevo hilo para manejar al cliente actual
   pthread_t thread;
   pthread_create(&thread, NULL, manageClient, (void *)&ConnectFD);
-
-  // TODO: call logger
-  printf("Client connected\n");
 }
 
 

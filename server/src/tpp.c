@@ -6,6 +6,7 @@
  */
 #include "../include/tpp.h"
 #include "../include/game_list.h"
+#include "../include/logfile.h"
 #include "../include/socket.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,13 +28,15 @@ char *messageToString(message_t m) {
 void response(player_t *player, char *msgType, char *payload) {
   message_t m = newMessage(msgType, payload);
   char *msg = messageToString(m);
+  char *logMsg = logMessage(msgType, payload);
   sendMsg(player->ConnectFD, msg);
+  logWrite(msgType, logMsg);
 }
 
 void registerPlayer(player_t *player, char username[]) {
   player->username = strdup(username);
-	char *payload = malloc(sizeof(char) * 100);
-	sprintf(payload, "Player registered with username: %s", username);
+  char *payload = malloc(sizeof(char) * 100);
+  sprintf(payload, "Player registered with username %s", username);
   response(player, SUCC, payload);
 }
 
@@ -41,7 +44,7 @@ void registerPlayer(player_t *player, char username[]) {
 void createGame(player_t *player) {
   char *gameId = newKey();
 
-	player->PlayerNumber = 1;
+  player->PlayerNumber = 1;
   // Create game
   game_t game;
   game.player1 = player;
@@ -49,33 +52,31 @@ void createGame(player_t *player) {
 
   // Add game to list
   insert(gameId, game);
-  // TODO: log game created
-  printf("%s\n ", gameId);
-  printGameList();
 
   char *payload = malloc(sizeof(char) * 100);
-  sprintf(payload, "Game created with id: %s", gameId);
+  sprintf(payload, "%s", gameId);
 
-  response(player, SUCC, payload);
+  response(player, CREATE, payload);
+  printGameList();
 }
 
 void startGame(char *gameId) {
-	game_t game = get(gameId);
+  game_t game = get(gameId);
 
-	response(game.player1, START, "");
+  response(game.player1, START, gameId);
 }
 
 void joinGame(player_t *player, char *gameId) {
-	player->PlayerNumber = 2;
+  player->PlayerNumber = 2;
   game_t game = get(gameId);
 
   if (isEmptyGame(game) == 1) {
     // TODO: log game does not exist and make response func
     response(player, ERR, "Game does not exist");
     return;
-  } 
+  }
 
-	if (game.player2 == NULL) {
+  if (game.player2 == NULL) {
     game.player2 = player;
   } else {
     // TODO: log game is full and make response func
@@ -84,25 +85,22 @@ void joinGame(player_t *player, char *gameId) {
   }
 
   insert(gameId, game);
-  printGameList();
 
   char *payload = malloc(sizeof(char) * 100);
 
-  // TODO: log game joined
-  sprintf(payload, "Joined game with id: %s", gameId);
-
+  sprintf(payload, "Player %s joined game %s", player->username, gameId);
   response(player, SUCC, payload);
-	//
-	startGame(gameId);
+  printGameList();
+  startGame(gameId);
 }
-
-
 
 int initServer(int port) {
   struct sockaddr_in sa;
   int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	char *logMsg = malloc(sizeof(char) * 100);
   if (SocketFD == -1) {
-    perror("cannot create socket");
+		sprintf(logMsg, "Cannot create socket");
+		logWrite(ERR, logMsg);
     exit(EXIT_FAILURE);
   }
 
@@ -113,15 +111,16 @@ int initServer(int port) {
   sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
   if (bind(SocketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
-    // TODO: call logger
-    perror("bind failed");
+		sprintf(logMsg, "Bind failed");
+		logWrite(ERR, logMsg);
     close(SocketFD);
     exit(EXIT_FAILURE);
   }
 
   if (listen(SocketFD, 10) == -1) {
     // TODO: call logger
-    perror("listen failed");
+		sprintf(logMsg, "Listen failed");
+		logWrite(ERR, logMsg);
     close(SocketFD);
     exit(EXIT_FAILURE);
   }
