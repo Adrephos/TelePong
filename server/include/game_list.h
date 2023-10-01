@@ -4,6 +4,7 @@
 
 typedef struct {
   char *username;
+  char *gameId;
   int ConnectFD;
   int PlayerNumber;
 } player_t;
@@ -13,6 +14,7 @@ typedef struct {
 	char *y;
 	char *dx;
 	char *dy;
+	char *speed;
 } ball_t;
 
 typedef struct {

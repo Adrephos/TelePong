@@ -11,7 +11,7 @@ char **parseArgs(char *buffer) {
 
 	token = strtok(aux, s);
 
-	char **gameState = (char**) malloc(6 * sizeof(char*));
+	char **gameState = (char**) malloc(7 * sizeof(char*));
 	int i = 0;
 	while (token != NULL) {
 		gameState[i] = token;
@@ -29,18 +29,16 @@ void parseMessage(player_t *player, char *buffer) {
   char *msgType = parsedArgs[0];
 	char *payload = parsedArgs[1];
 
-	char *padPos = parsedArgs[2];
-	char *ballX = parsedArgs[3];
-	char *ballY = parsedArgs[4];
-	char *ballDx = parsedArgs[5];
-	char *ballDy = parsedArgs[6];
-
   if (strcmp(msgType, CREATE) == 0) {
     createGame(player);
   } else if (strcmp(msgType, JOIN) == 0) {
     joinGame(player, payload);
   } else if (strcmp(msgType, REGISTER) == 0) {
     registerPlayer(player, payload);
+  } else if (strcmp(msgType, POST_STATE) == 0) {
+		postGameStateRequest(player, parsedArgs);
+  } else if (strcmp(msgType, GET_STATE) == 0) {
+		postGameStateResponse(player);
   } else if (strcmp(msgType, QUIT) == 0) {
     response(player, QUIT, "See yaa!!");
   } else {

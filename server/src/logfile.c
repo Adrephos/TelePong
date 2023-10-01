@@ -25,16 +25,16 @@ char *getTime() {
 }
 
 char *logMessage(char *msgType, char *logRegister) {
-  char *msg;
+  char *msgToLog;
   if (strcmp(msgType, CREATE) == 0) {
-    sprintf(msg, "Game created with id %s", logRegister);
-		return msg;
+    sprintf(msgToLog, "Game created with id %s", logRegister);
+		return msgToLog;
 	}if (strcmp(msgType, START) == 0) {
-    sprintf(msg, "Game with id %s started", logRegister);
-		return msg;
+    sprintf(msgToLog, "Game with id %s started", logRegister);
+		return msgToLog;
 	} else {
-		sprintf(msg, "%s", logRegister);
-		return msg;
+		sprintf(msgToLog, "%s", logRegister);
+		return msgToLog;
 	}
 }
 

@@ -8,6 +8,7 @@
 #define JOIN "JOIN"
 #define START "START"
 #define POST_STATE "POST_STATE"
+#define GET_STATE "GET_STATE"
 #define END_GAME "END_GAME"
 #define QUIT "QUIT"
 #define SUCC "SUCC"
@@ -25,6 +26,8 @@ void response(player_t *player, char *msgType, char *payload);
 void registerPlayer(player_t* player, char *username);
 void createGame(player_t* player);
 void joinGame(player_t* player, char *gameId);
+void postGameStateResponse(player_t *player);
+void postGameStateRequest(player_t *player, char **commandArgs);
 int initServer(int port);
 
 #endif
