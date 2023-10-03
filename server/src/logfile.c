@@ -25,17 +25,20 @@ char *getTime() {
 }
 
 char *logMessage(char *msgType, char *logRegister) {
-  char *msgToLog;
+  char *msgToLog = malloc(100);
+  if (msgToLog == NULL) {
+    return NULL;
+  }
+
   if (strcmp(msgType, CREATE) == 0) {
     sprintf(msgToLog, "Game created with id %s", logRegister);
-		return msgToLog;
-	}if (strcmp(msgType, START) == 0) {
+  } else if (strcmp(msgType, START) == 0) {
     sprintf(msgToLog, "Game with id %s started", logRegister);
-		return msgToLog;
-	} else {
-		sprintf(msgToLog, "%s", logRegister);
-		return msgToLog;
-	}
+  } else {
+    sprintf(msgToLog, "%s", logRegister);
+  }
+  
+  return msgToLog;
 }
 
 int logWrite(const char *type, const char *logRegister) {

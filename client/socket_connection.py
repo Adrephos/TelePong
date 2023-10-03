@@ -78,7 +78,8 @@ def request_state():
 
 # Player registration
 nickname = input('Nickname: ')
-send_msg(constants.REGISTER, nickname)
+data_received = send_msg(constants.REGISTER, nickname)
+print(data_received)
 player_number = 0
 
 # Create or join a room
