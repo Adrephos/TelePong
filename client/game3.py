@@ -189,5 +189,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    pygame.quit()
+    try:
+        main()
+    except Exception as e:
+        print("An error occurred:", str(e))
+    finally:
+        pygame.quit()
