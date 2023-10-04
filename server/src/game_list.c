@@ -19,10 +19,21 @@ char *newKey() {
 }
 
 // Function to create an empty game
-game_t emptyGame() {
-  game_t empty_game;
-  empty_game.player1 = NULL;
-  empty_game.player2 = NULL;
+game_t *emptyGame() {
+  game_t *empty_game = malloc(sizeof(game_t));
+	ball_t *ball = malloc(sizeof(ball_t));
+
+  empty_game->player1 = NULL;
+  empty_game->player2 = NULL;
+	empty_game->leftPaddle = "500";
+	empty_game->rigthPaddle = "500";
+	empty_game->ball = ball;
+	empty_game->ball->x = "0";
+	empty_game->ball->y = "0";
+	empty_game->ball->dx = "0";
+	empty_game->ball->dy = "0";
+	empty_game->ball->speed = "0";
+
   return empty_game;
 }
 
@@ -62,7 +73,7 @@ game_t get(char key[]) {
   int index = getIndex(key);
   if (index == -1) { // Key not found
     // Return an empty game
-    return emptyGame();
+    return *emptyGame();
   } else { // Key found
     return values[index];
   }

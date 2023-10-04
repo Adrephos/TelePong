@@ -26,7 +26,7 @@ typedef struct {
 } game_t;
 
 
-game_t emptyGame();
+game_t *emptyGame();
 int isEmptyGame(game_t game);
 char *newKey();
 void insert(char key[], game_t game_state);

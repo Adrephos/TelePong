@@ -47,9 +47,9 @@ void createGame(player_t *player) {
 
   // Set player number and game id
   player->PlayerNumber = 1;
-  player->gameId = gameId;
+  player->gameId = strdup(gameId);
   // Create game
-  game_t game;
+  game_t game = *emptyGame();
   game.player1 = player;
   game.player2 = NULL;
 
@@ -66,7 +66,15 @@ void createGame(player_t *player) {
 void startGame(char *gameId) {
   game_t game = get(gameId);
 
-  response(game.player1, START, gameId);
+  response(game.player1, START, game.player2->username);
+
+	// Print paddle and ball-
+	printf("Paddle 1: %s Paddle 2: %s\n", game.leftPaddle, game.rigthPaddle);
+	// Print plyers fd and player PlayerNumber
+	printf("Player 1 fd: %d %d Player 2 fd: %d %d\n", game.player1->ConnectFD, game.player1->PlayerNumber, game.player2->ConnectFD, game.player2->PlayerNumber);
+
+	postGameStateResponse(game.player1);
+	postGameStateResponse(game.player2);
 }
 
 void joinGame(player_t *player, char *gameId) {
@@ -75,7 +83,6 @@ void joinGame(player_t *player, char *gameId) {
   game_t game = get(gameId);
 
   if (isEmptyGame(game) == 1) {
-    // TODO: log game does not exist and make response func
     response(player, ERR, "Game does not exist");
     return;
   }
@@ -83,7 +90,6 @@ void joinGame(player_t *player, char *gameId) {
   if (game.player2 == NULL) {
     game.player2 = player;
   } else {
-    // TODO: log game is full and make response func
     response(player, ERR, "Game is full");
     return;
   }
@@ -92,7 +98,7 @@ void joinGame(player_t *player, char *gameId) {
 
   char *payload = malloc(sizeof(char) * 100);
 
-  sprintf(payload, "Player %s joined game %s", player->username, gameId);
+  sprintf(payload, "%s", game.player1->username);
   response(player, SUCC, payload);
   printGameList();
   startGame(gameId);
@@ -101,12 +107,12 @@ void joinGame(player_t *player, char *gameId) {
 void postGameStateResponse(player_t *player) {
   game_t game = get(player->gameId);
   char *payload = malloc(sizeof(char) * 100);
-  char *paddle;
+  char *paddle = malloc(sizeof(char) * 100);
 
   if (player->PlayerNumber == 1) {
-    strcpy(paddle, game.leftPaddle);
-  } else {
     strcpy(paddle, game.rigthPaddle);
+  } else {
+    strcpy(paddle, game.leftPaddle);
   }
 
   sprintf(payload, "%s %s %s %s %s %s", paddle, game.ball->x, game.ball->y,
@@ -134,6 +140,8 @@ void postGameStateRequest(player_t *player, char **commandArgs) {
   char *logMsg = malloc(sizeof(char) * 100);
   sprintf(logMsg, "Game state updated for game %s from player %s",
           player->gameId, player->username);
+
+	postGameStateResponse(game.player2);
 
   response(player, SUCC, strdup(logMsg));
 }
