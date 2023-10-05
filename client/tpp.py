@@ -1,26 +1,28 @@
 import socket
 import constants
-import time
+import threading
+# import time
 
 
 class Tpp:
-    def __init__(self):
+    def __init__(self, server_ip):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.player_number = 0
-        self.this_player_paddle = 0
+        self.this_player_paddle = 500
         self.other_player_paddle = 0
         self.ball_x = 0
         self.ball_y = 0
         self.ball_speed_x = 0
         self.ball_speed_y = 0
         self.ball_speed = 0
+        self.server_ip = server_ip
 
     def connect_to_server(self):
         print('***********************************')
         print('Client is running...')
         print('client_socket:', self.client_socket)
         print('***********************************')
-        self.client_socket.connect((constants.IP_SERVER, constants.PORT))
+        self.client_socket.connect((self.server_ip, constants.PORT))
 
     def parse_data(self, data):
         data = data.split(' ')
@@ -39,8 +41,6 @@ class Tpp:
         command = msgType + ' ' + payload
         self.client_socket.send(
             bytes(command, constants.ENCONDING_FORMAT))
-        data_received = self.read_msg()
-        return data_received
 
     def actual_state(self):
         state = f'{self.this_player_paddle} {self.ball_x} {self.ball_y} ' \
@@ -55,31 +55,20 @@ class Tpp:
         self.ball_speed_y = int(state[5])
         self.ball_speed = int(state[6])
 
-        # print state
-        print('***********************************')
-        print('Player 1 paddle: ', self.this_player_paddle)
-        print('Player 2 paddle: ', self.other_player_paddle)
-        print('Ball x: ', self.ball_x)
-        print('Ball y: ', self.ball_y)
-        print('Ball speed x: ', self.ball_speed_x)
-        print('Ball speed y: ', self.ball_speed_y)
-        print('Ball speed: ', self.ball_speed)
-        print('***********************************')
-
-    def request_state(self):
-        data_received = self.send_msg(constants.GET_STATE)
-        if self.parse_data(data_received)[0] == constants.POST_STATE:
-            self.set_state(self.parse_data(data_received))
+    def set_player_padle(self, paddle):
+        self.this_player_paddle = paddle
 
     def register_player(self, nickname):
-        data_received = self.send_msg(constants.REGISTER, nickname)
+        self.send_msg(constants.REGISTER, nickname)
+        data_received = self.read_msg()
         if self.parse_data(data_received)[0] == constants.SUCC:
             print('Registered successfully!')
         else:
             print('Error registering!')
 
     def create_room(self):
-        data_received = self.send_msg(constants.CREATE)
+        self.send_msg(constants.CREATE)
+        data_received = self.read_msg()
         parsed_data = self.parse_data(data_received)
         return parsed_data[1]  # game_id
 
@@ -93,12 +82,27 @@ class Tpp:
 
     # Returns the user nickname of the other player or an error message
     def join_room(self, game_id):
-        data_received = self.send_msg(constants.JOIN, game_id)
+        self.send_msg(constants.JOIN, game_id)
+        data_received = self.read_msg()
         parsed_data = self.parse_data(data_received)
         if parsed_data[0] == constants.ERR:
             return data_received[len(constants.ERR) + 1:], True
         elif parsed_data[0] == constants.SUCC:
             return parsed_data[1], False
+
+    def receive_state(self):
+        received_state = self.read_msg()
+        parsed_data = self.parse_data(received_state)
+        if parsed_data[0] == constants.POST_STATE:
+            self.set_state(parsed_data)
+
+    # Function that reads the socket constantly and updates the game state
+    def update_game_state(self):
+        while True:
+            self.receive_state()
+
+    def send_state(self):
+        self.send_msg(constants.POST_STATE, self.actual_state())
 
     def initialize_game(self):
         # Player registration
@@ -126,6 +130,18 @@ class Tpp:
                 else:
                     nicknname_p2 = data
         print(nickname, ' vs ', nicknname_p2)
+        # Receive initial game state
+        self.receive_state()
+        # create thread to update game state
+        data_receiver_thread = threading.Thread(
+            target=self.update_game_state, daemon=True)
+        data_receiver_thread.start()
+
+        # if key pressed, update paddle position and send it to server
+        while True:
+            if input('Press w to move paddle up: ') == 'w':
+                self.this_player_paddle += 1
+                self.send_state()
 
     def main_game_loop(self):
         print(self.player_number)
@@ -138,11 +154,10 @@ class Tpp:
 
 if __name__ == "__main__":
     try:
-        protocol = Tpp()
+        protocol = Tpp(constants.IP_SERVER)
         protocol.connect_to_server()
         protocol.initialize_game()
         protocol.main_game_loop()
-        time.sleep(2)
     except Exception as e:
         print("An error occurred:", str(e))
     finally:
