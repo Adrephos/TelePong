@@ -31,7 +31,7 @@ void response(player_t *player, char *msgType, char *payload) {
   char *msg = messageToString(m);
   char *logMsg = logMessage(strdup(msgType), strdup(payload));
   sendMsg(player->ConnectFD, msg);
-  logWrite(msgType, logMsg);
+	logWrite(msgType, logMsg);
 }
 
 void registerPlayer(player_t *player, char username[]) {
@@ -141,9 +141,14 @@ void postGameStateRequest(player_t *player, char **commandArgs) {
   sprintf(logMsg, "Game state updated for game %s from player %s",
           player->gameId, player->username);
 
-	postGameStateResponse(game.player2);
+	// Send game state to other player
+	if (player->PlayerNumber == 1) {
+		postGameStateResponse(game.player2);
+	} else {
+		postGameStateResponse(game.player1);
+	}
 
-  response(player, SUCC, strdup(logMsg));
+  // response(player, SUCC, strdup(logMsg));
 }
 
 int initServer(int port) {

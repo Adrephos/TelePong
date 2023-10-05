@@ -25,14 +25,14 @@ game_t *emptyGame() {
 
   empty_game->player1 = NULL;
   empty_game->player2 = NULL;
-	empty_game->leftPaddle = "500";
-	empty_game->rigthPaddle = "500";
+	empty_game->leftPaddle = "20";
+	empty_game->rigthPaddle = "20";
 	empty_game->ball = ball;
-	empty_game->ball->x = "0";
-	empty_game->ball->y = "0";
-	empty_game->ball->dx = "0";
-	empty_game->ball->dy = "0";
-	empty_game->ball->speed = "0";
+	empty_game->ball->x = "640";
+	empty_game->ball->y = "360";
+	empty_game->ball->dx = "1";
+	empty_game->ball->dy = "-1";
+	empty_game->ball->speed = "10";
 
   return empty_game;
 }
