@@ -291,7 +291,6 @@ def play(protocol, this_name, other_name, this_number):
                 this_playerScore += 1
             elif this_number == 2:
                 other_playerScore += 1
-            this_playerScore += 1
         elif point == 1:
             if this_number == 2:
                 this_playerScore += 1
