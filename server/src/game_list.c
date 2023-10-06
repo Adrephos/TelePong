@@ -34,6 +34,8 @@ game_t *emptyGame() {
 	empty_game->ball->dy = "-1";
 	empty_game->ball->speed = "10";
 
+  free(ball);
+
   return empty_game;
 }
 
@@ -99,4 +101,7 @@ void printGameList() {
     }
   }
   logWrite("GAME LIST", logMsg);
+
+  free(logMsg);
+  free(logMsg2);
 }

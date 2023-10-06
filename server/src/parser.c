@@ -19,6 +19,8 @@ char **parseArgs(char *buffer) {
 		i++;
 	}
 
+  	free(aux);
+
 	return gameState;
 }
 
@@ -26,24 +28,32 @@ char **parseArgs(char *buffer) {
 void parseMessage(player_t *player, char *buffer) {
 	char **parsedArgs = parseArgs(buffer);
 
-  char *msgType = parsedArgs[0];
+	if (parsedArgs == NULL) {
+		response(player, ERR, "Failed to parse message");
+		return;
+	}
+
+	char *msgType = parsedArgs[0];
 	char *payload = parsedArgs[1];
 
-  if (strcmp(msgType, CREATE) == 0) {
-    createGame(player);
-  } else if (strcmp(msgType, JOIN) == 0) {
-    joinGame(player, payload);
-  } else if (strcmp(msgType, REGISTER) == 0) {
-    registerPlayer(player, payload);
-  } else if (strcmp(msgType, POST_STATE) == 0) {
-		postGameStateRequest(player, parsedArgs);
-  } else if (strcmp(msgType, GET_STATE) == 0) {
-		postGameStateResponse(player);
-  } else if (strcmp(msgType, QUIT) == 0) {
-    response(player, QUIT, "See yaa!!");
-  } else {
-    response(player, ERR, "Invalid message type");
-  }
-  return;
+	if (strcmp(msgType, CREATE) == 0) {
+		createGame(player);
+	} else if (strcmp(msgType, JOIN) == 0) {
+		joinGame(player, payload);
+	} else if (strcmp(msgType, REGISTER) == 0) {
+		registerPlayer(player, payload);
+	} else if (strcmp(msgType, POST_STATE) == 0) {
+			postGameStateRequest(player, parsedArgs);
+	} else if (strcmp(msgType, GET_STATE) == 0) {
+			postGameStateResponse(player);
+	} else if (strcmp(msgType, QUIT) == 0) {
+		response(player, QUIT, "See yaa!!");
+	} else {
+		response(player, ERR, "Invalid message type");
+	}
+
+	free(parsedArgs);
+
+	return;
 }
 
