@@ -23,7 +23,7 @@ char **parseArgs(char *buffer) {
 	printf("After gameState ----------------------\n");
 	
 	int i = 0;
-	while (token != NULL && i < MAX_GAME_STATE_SIZE) {
+	while (token != NULL) {	//&& i < MAX_GAME_STATE_SIZE
 		gameState[i] = token;
 		token = strtok(NULL, s);
 		i++;
