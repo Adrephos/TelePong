@@ -1,3 +1,5 @@
+#define MAX_GAME_STATE_SIZE 100
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,24 +10,25 @@ char **parseArgs(char *buffer) {
 	printf("Parsing args ----------------------\n");
 	char *token;
 	char *aux = strdup(buffer);
-	printf("Aux executed ----------------------\n");
 	const char s[2] = " ";
+	printf("Aux executed ----------------------\n");
 
 	token = strtok(aux, s);
 
 	printf("Before gameState ----------------------\n");
 
-	char **gameState = (char**) malloc(7 * sizeof(char*));
+	//char **gameState = (char**) malloc(7 * sizeof(char*));
+	char** gameState = malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
+	memset(gameState, 0, sizeof(gameState)); // initialize the array to NULL
 	printf("After gameState ----------------------\n");
 	
 	int i = 0;
-	while (token != NULL) {
+	while (token != NULL && i < MAX_GAME_STATE_SIZE) {
 		gameState[i] = token;
 		token = strtok(NULL, s);
 		i++;
 	}
 	printf("Finish method  ----------------------\n");
-
 
 	return gameState;
 }
