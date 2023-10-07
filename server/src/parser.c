@@ -1,4 +1,4 @@
-#define MAX_GAME_STATE_SIZE 100
+#define MAX_GAME_STATE_SIZE 1000
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,9 +17,9 @@ char **parseArgs(char *buffer) {
 
 	printf("Before gameState ----------------------\n");
 
-	//char **gameState = (char**) malloc(7 * sizeof(char*));
-	char** gameState = malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
-	memset(gameState, 0, sizeof(gameState)); // initialize the array to NULL
+	char **gameState = (char**) malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
+	//char** gameState = malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
+	//memset(gameState, 0, sizeof(gameState)); // initialize the array to NULL
 	printf("After gameState ----------------------\n");
 	
 	int i = 0;
