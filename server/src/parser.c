@@ -5,19 +5,27 @@
 #include "../include/parser.h"
 
 char **parseArgs(char *buffer) {
+	printf("Parsing args ----------------------\n");
 	char *token;
 	char *aux = strdup(buffer);
+	printf("Aux executed ----------------------\n");
 	const char s[2] = " ";
 
 	token = strtok(aux, s);
 
+	printf("Before gameState ----------------------\n");
+
 	char **gameState = (char**) malloc(7 * sizeof(char*));
+	printf("After gameState ----------------------\n");
+	
 	int i = 0;
 	while (token != NULL) {
 		gameState[i] = token;
 		token = strtok(NULL, s);
 		i++;
 	}
+	printf("Finish method  ----------------------\n");
+
 
 	return gameState;
 }
