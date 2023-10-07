@@ -206,19 +206,19 @@ class UpdateThread(threading.Thread):
         self.ball = ball
 
     def update(self, other_player, ball):
-            received_state = self.protocol.read_msg()
-            parsed_data = self.protocol.parse_data(received_state)
-            if parsed_data[0] == constants.POST_STATE:
-                paddle = float(parsed_data[1])
-                ball_x = float(parsed_data[2])
-                ball_y = float(parsed_data[3])
-                ball_speed_x = float(parsed_data[4])
-                ball_speed_y = float(parsed_data[5])
-                ball_speed = float(parsed_data[6])
+        received_state = self.protocol.read_msg()
+        parsed_data = self.protocol.parse_data(received_state)
+        if parsed_data[0] == constants.POST_STATE:
+            paddle = float(parsed_data[1])
+            ball_x = float(parsed_data[2])
+            ball_y = float(parsed_data[3])
+            ball_speed_x = float(parsed_data[4])
+            ball_speed_y = float(parsed_data[5])
+            ball_speed = float(parsed_data[6])
 
-                self.ball.setPos(ball_x, ball_y)
-                self.ball.setSpeed(ball_speed, ball_speed_x, ball_speed_y)
-                self.other_player.setPos(paddle)
+            self.ball.setPos(ball_x, ball_y)
+            self.ball.setSpeed(ball_speed, ball_speed_x, ball_speed_y)
+            self.other_player.setPos(paddle)
 
     def run(self):
         while True:
@@ -253,6 +253,7 @@ def play(protocol, this_name, other_name, this_number):
     UpdateThread.update(thread, other_player, ball)
     thread.start()
 
+    i = 0
     while running:
         screen.fill(BLACK)
 
@@ -282,21 +283,26 @@ def play(protocol, this_name, other_name, this_number):
         # Updating the objects
         this_player.update(this_playerFac)
         point = ball.update()
+        if point:
+            print("Point scored")
         if update:
             state = f'{round(this_player.posy, 2)} {round(ball.posx, 2)} {round(ball.posy, 2)} {round(ball.xFac, 2)} {round(ball.yFac, 2)} {round(ball.speed, 2)}'
             protocol.send_msg(constants.POST_STATE, state)
 
         if point == -1:
-            if this_number == 1:
+            if this_number == 1 and i <= 5:
                 this_playerScore += 1
-            elif this_number == 2:
+            elif this_number == 2 and i <= 5:
                 other_playerScore += 1
-            this_playerScore += 1
+            i += 1
         elif point == 1:
-            if this_number == 2:
+            if this_number == 2 and i <= 5:
                 this_playerScore += 1
-            elif this_number == 1:
+            elif this_number == 1 and i <= 5:
                 other_playerScore += 1
+            i += 1
+        if i == 15:
+            i = 0
 
         # Someone has scored
         # a point and the ball is out of bounds.
@@ -304,10 +310,10 @@ def play(protocol, this_name, other_name, this_number):
         if point:
             ball.reset()
 
-        if this_playerScore == 5:
+        if this_playerScore == 10:
             running = False
             end_game(protocol, "YOU WIN!!!!", WHITE)
-        elif other_playerScore == 5:
+        elif other_playerScore == 10:
             running = False
             end_game(protocol, other_name + " WINS!!!!", RED)
 
@@ -435,7 +441,8 @@ def join_game_screen(protocol: tpp.Tpp, this_name: str):
 
         screen.blit(menu_text, menu_rect)
         screen.blit(error_text, (130 - error_text.get_width() // 2, HEIGHT-30))
-        screen.blit(room_id_label, (640 - room_id_label.get_width() // 2, (HEIGHT//2)-50))
+        screen.blit(room_id_label,
+                    (640 - room_id_label.get_width() // 2, (HEIGHT//2)-50))
 
         for button in [submit_button]:
             button.changeColor(MENU_MOUSE_POS)
