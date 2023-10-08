@@ -4,4 +4,3 @@ server/obj/*
 server/logs/*
 server/TelePong.pem
 .vscode/
-TelePong.pem
