@@ -7,28 +7,20 @@
 #include "../include/parser.h"
 
 char **parseArgs(char *buffer) {
-	printf("Parsing args ----------------------\n");
 	char *token;
 	char *aux = strdup(buffer);
 	const char s[2] = " ";
-	printf("Aux executed ----------------------\n");
 
 	token = strtok(aux, s);
 
-	printf("Before gameState ----------------------\n");
-
 	char **gameState = (char**) malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
-	//char** gameState = malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
-	//memset(gameState, 0, sizeof(gameState)); // initialize the array to NULL
-	printf("After gameState ----------------------\n");
-	
+
 	int i = 0;
-	while (token != NULL) {	//&& i < MAX_GAME_STATE_SIZE
+	while (token != NULL) {
 		gameState[i] = token;
 		token = strtok(NULL, s);
 		i++;
 	}
-	printf("Finish method  ----------------------\n");
 
 	return gameState;
 }

@@ -18,7 +18,7 @@ void *sendMsg(int ConnectFD, char *response) {
   return NULL;
 }
 
-// Función que maneja a cada cliente
+// Function that handles each client
 void *manageClient(void *arg) {
   int clientNumber = 0;
 	char *logMsg = malloc(sizeof(char) * 100);
@@ -69,7 +69,7 @@ void acceptClientConnection(int SocketFD) {
     return;
   }
 
-  // Crea un nuevo hilo para manejar al cliente actual
+  // Create a new thread to handle the current client
   pthread_t thread;
   pthread_create(&thread, NULL, manageClient, (void *)&ConnectFD);
 }
