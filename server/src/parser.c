@@ -1,3 +1,5 @@
+#define MAX_GAME_STATE_SIZE 1000
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +13,8 @@ char **parseArgs(char *buffer) {
 
 	token = strtok(aux, s);
 
-	char **gameState = (char**) malloc(7 * sizeof(char*));
+	char **gameState = (char**) malloc(MAX_GAME_STATE_SIZE * sizeof(char*));
+
 	int i = 0;
 	while (token != NULL) {
 		gameState[i] = token;

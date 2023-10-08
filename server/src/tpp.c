@@ -192,7 +192,7 @@ int initServer(int port) {
     acceptClientConnection(SocketFD);
   }
 
-  // Cierra el socket principal solo cuando desees finalizar el servidor
+  // Close the main socket only when we want to terminate the server.
   close(SocketFD);
   return EXIT_SUCCESS;
 }

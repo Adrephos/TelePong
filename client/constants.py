@@ -3,7 +3,10 @@
 PORT = 8080
 ENCONDING_FORMAT = "utf-8"
 RECV_BUFFER_SIZE = 1024
+# Local IP
 IP_SERVER = '127.0.0.1'
+# Public Instance IP
+#IP_SERVER = ''
 
 # tpp methods
 REGISTER = 'REGISTER'
