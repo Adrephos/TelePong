@@ -17,6 +17,7 @@ PURPLE = (129, 103, 151)
 YELLOW = (214, 213, 168)
 WHITE = (196, 196, 196)
 RED = (201, 44, 109)
+GREEN = (193, 225, 193)
 
 FONT = "assets/UpheavalPro.ttf"
 
@@ -176,10 +177,10 @@ class Ball:
         if self.posy <= 0 or self.posy >= HEIGHT:
             self.yFac *= -1
 
-        if self.posx <= 0 and self.firstTime:
+        if self.posx <= -10 and self.firstTime:
             self.firstTime = 0
             return 1
-        elif self.posx >= WIDTH and self.firstTime:
+        elif self.posx >= WIDTH+10 and self.firstTime:
             self.firstTime = 0
             return -1
         else:
@@ -193,7 +194,7 @@ class Ball:
 
     # Used to reflect the ball along the X-axis
     def hit(self):
-        self.speed += 0.2
+        self.speed += 0.5
         self.xFac *= -1
 
     def getRect(self):
@@ -253,7 +254,9 @@ def play(protocol, this_name, other_name, this_number):
     UpdateThread.update(thread, other_player, ball)
     thread.start()
 
-    i = 0
+    i, j = 1, 1
+    score = True
+    collide = True
     while running:
         screen.fill(BLACK)
 
@@ -277,8 +280,10 @@ def play(protocol, this_name, other_name, this_number):
 
         # Collision detection
         for geek in listOfPlayers:
-            if pygame.Rect.colliderect(ball.getRect(), geek.getRect()):
+            if pygame.Rect.colliderect(ball.getRect(), geek.getRect()) and collide:
                 ball.hit()
+                j = 0
+                collide = False
 
         # Updating the objects
         this_player.update(this_playerFac)
@@ -289,20 +294,27 @@ def play(protocol, this_name, other_name, this_number):
             state = f'{round(this_player.posy, 2)} {round(ball.posx, 2)} {round(ball.posy, 2)} {round(ball.xFac, 2)} {round(ball.yFac, 2)} {round(ball.speed, 2)}'
             protocol.send_msg(constants.POST_STATE, state)
 
-        if point == -1:
-            if this_number == 1 and i <= 5:
+        # If a point is score, don't score in the next 5 frames
+        if point == -1 and score:
+            if this_number == 1:
                 this_playerScore += 1
-            elif this_number == 2 and i <= 5:
+            elif this_number == 2:
                 other_playerScore += 1
-            i += 1
-        elif point == 1:
-            if this_number == 2 and i <= 5:
-                this_playerScore += 1
-            elif this_number == 1 and i <= 5:
-                other_playerScore += 1
-            i += 1
-        if i == 15:
             i = 0
+            score = False
+        elif point == 1 and score:
+            if this_number == 2:
+                this_playerScore += 1
+            elif this_number == 1:
+                other_playerScore += 1
+            i = 0
+            score = False
+        i += 1
+        j += 1
+        if i == 5:
+            score = True
+        if j == 5:
+            collide = True
 
         # Someone has scored
         # a point and the ball is out of bounds.
@@ -325,14 +337,14 @@ def play(protocol, this_name, other_name, this_number):
         # Displaying the scores of the players
         if this_number == 1:
             this_player.displayScore(this_player.nickname,
-                                     this_playerScore, 400, 20, RED)
+                                     this_playerScore, 400, 20, GREEN)
             other_player.displayScore(other_player.nickname,
-                                      other_playerScore, WIDTH-400, 20, YELLOW)
+                                      other_playerScore, WIDTH-400, 20, RED)
         else:
             this_player.displayScore(this_player.nickname,
-                                     this_playerScore, WIDTH-400, 20, RED)
+                                     this_playerScore, WIDTH-400, 20, GREEN)
             other_player.displayScore(other_player.nickname,
-                                      other_playerScore, 400, 20, YELLOW)
+                                      other_playerScore, 400, 20, RED)
 
         time.sleep(0.06)
         pygame.display.update()
