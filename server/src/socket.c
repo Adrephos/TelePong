@@ -15,57 +15,50 @@ void *sendMsg(int ConnectFD, char *response) {
     close(ConnectFD);
   }
 
-  free(logMsg);
-
   return NULL;
 }
 
-// Función que maneja a cada cliente
+// Function that handles each client
 void *manageClient(void *arg) {
   int clientNumber = 0;
-  char *logMsg = malloc(sizeof(char) * 100);
-  // Create player
-  player_t player;
-  player.ConnectFD = *((int *)arg);
-  sprintf(logMsg, "Client connected with FD %d", player.ConnectFD);
-  logWrite(SUCC, logMsg);
+	char *logMsg = malloc(sizeof(char) * 100);
+	// Create player
+	player_t player;
+	player.ConnectFD = *((int *)arg);
+	sprintf(logMsg, "Client connected with FD %d", player.ConnectFD);
+	logWrite(SUCC, logMsg);
 
   // Read from the client
   char buffer[RECV_BUFFER_SIZE];
   ssize_t bytesRead;
 
-  int shouldCloseSocket = 0;
 
   for (;;) {
     bytesRead = read(player.ConnectFD, buffer, sizeof(buffer));
 
     if (bytesRead == -1) {
-      sprintf(logMsg, "Read failed");
-      logWrite(ERR, logMsg);
-      shouldCloseSocket = 1;
+			sprintf(logMsg, "Read failed");
+			logWrite(ERR, logMsg);
+      close(player.ConnectFD);
       break;
     }
 
     if (bytesRead == 0) {
-      sprintf(logMsg, "Client disconnected");
-      logWrite(QUIT, logMsg);
-      shouldCloseSocket = 1;
+			sprintf(logMsg, "Client disconnected");
+			logWrite(QUIT, logMsg);
       break;
     } else {
       buffer[bytesRead] = '\0'; // Null-terminate the received data
+
       parseMessage(&player, buffer);
+
     }
+
   }
 
-  free(logMsg);
-
-  if (shouldCloseSocket) {
-    close(player.ConnectFD);
-  }
-  
+  close(player.ConnectFD); // Close the socket
   return NULL;
 }
-
 
 void acceptClientConnection(int SocketFD) {
 	char *logMsg = malloc(sizeof(char) * 100);
@@ -73,11 +66,10 @@ void acceptClientConnection(int SocketFD) {
   if (ConnectFD == -1) {
 		sprintf(logMsg, "Accept failed");
 		logWrite(ERR, logMsg);
-    free(logMsg);
     return;
   }
 
-  // Crea un nuevo hilo para manejar al cliente actual
+  // Create a new thread to handle the current client
   pthread_t thread;
   pthread_create(&thread, NULL, manageClient, (void *)&ConnectFD);
 }

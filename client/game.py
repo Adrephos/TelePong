@@ -5,6 +5,8 @@ import constants
 import threading
 import pygame_gui
 import time
+import re
+
 
 pygame.init()
 
@@ -17,6 +19,7 @@ WHITE = (196, 196, 196)
 RED = (201, 44, 109)
 
 FONT = "assets/UpheavalPro.ttf"
+
 
 # Basic parameters of the screen
 WIDTH, HEIGHT = 1280, 720
@@ -128,9 +131,8 @@ class Striker:
     def getRect(self):
         return self.geekRect
 
+
 # Ball class
-
-
 class Ball:
     def __init__(self, posx, posy, radius, speed, color):
         self.posx = posx
@@ -206,15 +208,15 @@ class UpdateThread(threading.Thread):
         self.ball = ball
 
     def update(self, other_player, ball):
-        received_state = self.protocol.read_msg()
-        parsed_data = self.protocol.parse_data(received_state)
-        if parsed_data[0] == constants.POST_STATE:
-            paddle = float(parsed_data[1])
-            ball_x = float(parsed_data[2])
-            ball_y = float(parsed_data[3])
-            ball_speed_x = float(parsed_data[4])
-            ball_speed_y = float(parsed_data[5])
-            ball_speed = float(parsed_data[6])
+            received_state = self.protocol.read_msg()
+            parsed_data = self.protocol.parse_data(received_state)
+            if parsed_data[0] == constants.POST_STATE:
+                paddle = float(parsed_data[1])
+                ball_x = float(parsed_data[2])
+                ball_y = float(parsed_data[3])
+                ball_speed_x = float(parsed_data[4])
+                ball_speed_y = float(parsed_data[5])
+                ball_speed = float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", parsed_data[6])[0])
 
             self.ball.setPos(ball_x, ball_y)
             self.ball.setSpeed(ball_speed, ball_speed_x, ball_speed_y)
@@ -238,8 +240,6 @@ def play(protocol, this_name, other_name, this_number):
         other_player = Striker(20, 0, 20, 120, 17, GRAY, other_name)
 
     ball = Ball(WIDTH//2, HEIGHT//2, 7, 10, YELLOW)
-
-    # print(WIDTH//2, HEIGHT//2)
 
     listOfPlayers = [this_player, other_player]
 
@@ -334,7 +334,7 @@ def play(protocol, this_name, other_name, this_number):
             other_player.displayScore(other_player.nickname,
                                       other_playerScore, 400, 20, YELLOW)
 
-        time.sleep(0.05)
+        time.sleep(0.06)
         pygame.display.update()
 
 
@@ -375,9 +375,8 @@ def end_game(protocol: tpp.Tpp, text: str, color):
 def get_font(size):  # Returns Press-Start-2P in the desired size
     return pygame.font.Font(FONT, size)
 
+
 # Thread to wait for players and show the room id
-
-
 class WaitThread(threading.Thread):
     def __init__(self, protocol: tpp.Tpp, flag: bool):
         threading.Thread.__init__(self, daemon=True)

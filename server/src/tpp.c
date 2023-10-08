@@ -32,11 +32,6 @@ void response(player_t *player, char *msgType, char *payload) {
   char *logMsg = logMessage(strdup(msgType), strdup(payload));
   sendMsg(player->ConnectFD, msg);
 	logWrite(msgType, logMsg);
-
-  free(m.msgType);
-  free(m.payload);
-  free(msg);
-  free(logMsg);
 }
 
 void registerPlayer(player_t *player, char username[]) {
@@ -44,8 +39,6 @@ void registerPlayer(player_t *player, char username[]) {
   char *payload = malloc(sizeof(char) * 100);
   sprintf(payload, "Player registered with username %s", username);
   response(player, SUCC, payload);
-
-  free(payload);
 }
 
 // Create game
@@ -68,8 +61,6 @@ void createGame(player_t *player) {
 
   response(player, CREATE, payload);
   printGameList();
-
-  free(player->gameId);
 }
 
 void startGame(char *gameId) {
@@ -84,18 +75,11 @@ void startGame(char *gameId) {
 
 	postGameStateResponse(game.player1);
 	postGameStateResponse(game.player2);
-
-  free(gameId);
 }
 
 void joinGame(player_t *player, char *gameId) {
-  // Free memory previously allocated to player->gameId if not NULL
-  if (player->gameId != NULL) {
-    free(player->gameId);
-  }
-
   player->PlayerNumber = 2;
-  player->gameId = strdup(gameId);
+  player->gameId = gameId;
   game_t game = get(gameId);
 
   if (isEmptyGame(game) == 1) {
@@ -135,28 +119,16 @@ void postGameStateResponse(player_t *player) {
           game.ball->dx, game.ball->dy, game.ball->speed);
 
   response(player, POST_STATE, payload);
-
-  free(payload);
-  free(paddle);
 }
 
 void postGameStateRequest(player_t *player, char **commandArgs) {
   game_t game = get(player->gameId);
 
   if (player->PlayerNumber == 1) {
-    free(game.leftPaddle);
     game.leftPaddle = strdup(commandArgs[1]);
   } else {
-    free(game.rigthPaddle);
     game.rigthPaddle = strdup(commandArgs[1]);
   }
-  free(game.ball->x);
-  free(game.ball->y);
-  free(game.ball->dx);
-  free(game.ball->dy);
-  free(game.ball->speed);
-  
-  // Allocate new dynamic memory
   game.ball->x = strdup(commandArgs[2]);
   game.ball->y = strdup(commandArgs[3]);
   game.ball->dx = strdup(commandArgs[4]);
@@ -169,17 +141,15 @@ void postGameStateRequest(player_t *player, char **commandArgs) {
   sprintf(logMsg, "Game state updated for game %s from player %s",
           player->gameId, player->username);
 
-  // Send game state to other player
-  if (player->PlayerNumber == 1) {
-    postGameStateResponse(game.player2);
-  } else {
-    postGameStateResponse(game.player1);
-  }
+	// Send game state to other player
+	if (player->PlayerNumber == 1) {
+		postGameStateResponse(game.player2);
+	} else {
+		postGameStateResponse(game.player1);
+	}
 
-  free(logMsg);
-  free(commandArgs[1]);
+  // response(player, SUCC, strdup(logMsg));
 }
-
 
 int initServer(int port) {
   struct sockaddr_in sa;
@@ -222,11 +192,7 @@ int initServer(int port) {
     acceptClientConnection(SocketFD);
   }
 
-  // Cierra el socket principal solo cuando desees finalizar el servidor
+  // Close the main socket only when we want to terminate the server.
   close(SocketFD);
-
-  free(logMsg);
-  free(msg);
-
   return EXIT_SUCCESS;
 }

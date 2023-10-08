@@ -2,5 +2,5 @@ client/venv/
 client/__pycache__/
 server/obj/*
 server/logs/*
+server/TelePong.pem
 .vscode/
-TelePong.pem
