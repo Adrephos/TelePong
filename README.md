@@ -29,6 +29,19 @@ The game has its own communication protocol and a more modern interface made wit
 
 ## 3. Development - Definition of the protocol - TCP or UDP
 We had to decide whether to use the TCP or UDP protocol as the foundation for our project. At the end, we opted to use TCP, due that with the UDP protocol, despite the advantage of being faster, is not convinient since it could trigger lost packages and desynchronization between the players. 
+### Structure of the project:
+### Client:
+- assets folder: recourses needed for the game, such as images and font
+- constants: values that remain static throughout the program, such as the used IP and Port
+- tpp (TelePong Protocol): class with the functions that define the comunication between client and server
+- game: todo lo relacionado con el juego
+
+### Server:
+- bin folder: contains the executable of the server
+- include folder: defines the header files, which contains the declaration of functions that may be used in other parts of the code
+- logs folder: in this folder the logs.txt file is generated 
+- obj folder: contains the .o files, generated during the compilation of the code
+- src folder: contains the main C code
 
 ## 4. Conclusions 
 -
@@ -37,8 +50,7 @@ We had to decide whether to use the TCP or UDP protocol as the foundation for ou
 ## 5. References
 This project could not have been possible without some resources that we found in the internet
 
-- General structure of the game:
-  https://www.geeksforgeeks.org/create-a-pong-game-in-python-pygame/
-- Menu screen: https://github.com/baraltech/Menu-System-PyGame
+- General structure of the game: https://www.geeksforgeeks.org/create-a-pong-game-in-python-pygame/
+- Screen menu system: https://github.com/baraltech/Menu-System-PyGame
 - Text input: https://github.com/baraltech/Text-Input-PyGame
 
