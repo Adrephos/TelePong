@@ -207,25 +207,36 @@ class UpdateThread(threading.Thread):
         self.protocol = protocol
         self.other_player = other_player
         self.ball = ball
+        self.myScore = 0
+
+    def getScore(self):
+        return self.myScore
 
     def update(self, other_player, ball):
-            received_state = self.protocol.read_msg()
-            parsed_data = self.protocol.parse_data(received_state)
-            if parsed_data[0] == constants.POST_STATE:
-                paddle = float(parsed_data[1])
-                ball_x = float(parsed_data[2])
-                ball_y = float(parsed_data[3])
-                ball_speed_x = float(parsed_data[4])
-                ball_speed_y = float(parsed_data[5])
-                ball_speed = float(re.findall(r"[-+]?[0-9]*\.?[0-9]+", parsed_data[6])[0])
+        received_state = self.protocol.read_msg()
+        parsed_data = self.protocol.parse_data(received_state)
+        if parsed_data[0] == constants.POST_STATE:
+            paddle = float(parsed_data[1])
+            self.myScore = int(parsed_data[2])
+            ball_x = float(parsed_data[3])
+            ball_y = float(parsed_data[4])
+            ball_speed_x = float(parsed_data[5])
+            ball_speed_y = float(parsed_data[6])
+            ball_speed = float(re.findall(
+                r"[-+]?[0-9]*\.?[0-9]+", parsed_data[7])[0])
 
-            self.ball.setPos(ball_x, ball_y)
-            self.ball.setSpeed(ball_speed, ball_speed_x, ball_speed_y)
-            self.other_player.setPos(paddle)
+        self.ball.setPos(ball_x, ball_y)
+        self.ball.setSpeed(ball_speed, ball_speed_x, ball_speed_y)
+        self.other_player.setPos(paddle)
 
     def run(self):
         while True:
             self.update(self.other_player, self.ball)
+
+def send_current_state(protocol, this_player, other_player_score, ball):
+    state = f'{round(this_player.posy, 2)} {other_player_score} {round(ball.posx, 2)} {round(ball.posy, 2)} {round(ball.xFac, 2)} {round(ball.yFac, 2)} {round(ball.speed, 2)}'
+    protocol.send_msg(constants.POST_STATE, state)
+
 
 
 # Game Manager
@@ -245,7 +256,6 @@ def play(protocol, this_name, other_name, this_number):
     listOfPlayers = [this_player, other_player]
 
     # Initial parameters of the players
-    this_playerScore, other_playerScore = 0, 0
     this_playerFac = 0
     update = False
 
@@ -253,10 +263,17 @@ def play(protocol, this_name, other_name, this_number):
     thread = UpdateThread(protocol, other_player, ball)
     UpdateThread.update(thread, other_player, ball)
     thread.start()
+    this_player_score, other_player_score = thread.getScore(), 0
 
-    i, j = 1, 1
+    point_delay, collision_delay = 1, 1
     score = True
     collide = True
+
+    if this_number == 1:
+        score_indicator = 1
+    else:
+        score_indicator = -1
+
     while running:
         screen.fill(BLACK)
 
@@ -282,38 +299,34 @@ def play(protocol, this_name, other_name, this_number):
         for geek in listOfPlayers:
             if pygame.Rect.colliderect(ball.getRect(), geek.getRect()) and collide:
                 ball.hit()
-                j = 0
+                collision_delay = 0
                 collide = False
 
         # Updating the objects
         this_player.update(this_playerFac)
         point = ball.update()
-        if point:
-            print("Point scored")
-        if update:
-            state = f'{round(this_player.posy, 2)} {round(ball.posx, 2)} {round(ball.posy, 2)} {round(ball.xFac, 2)} {round(ball.yFac, 2)} {round(ball.speed, 2)}'
-            protocol.send_msg(constants.POST_STATE, state)
 
-        # If a point is score, don't score in the next 5 frames
-        if point == -1 and score:
-            if this_number == 1:
-                this_playerScore += 1
-            elif this_number == 2:
-                other_playerScore += 1
-            i = 0
+        if point:
+            print("Point scored", point)
+
+        # Detecting if a point is scored
+        if point == score_indicator and score:
+            other_player_score += 1
+            send_current_state(protocol, this_player, other_player_score, ball)
             score = False
-        elif point == 1 and score:
-            if this_number == 2:
-                this_playerScore += 1
-            elif this_number == 1:
-                other_playerScore += 1
-            i = 0
-            score = False
-        i += 1
-        j += 1
-        if i == 5:
+            point_delay = 0
+
+        if update:
+            send_current_state(protocol, this_player, other_player_score, ball)
+
+        # Delaying the scoring and collision detection
+        # so that the ball doesn't get stuck in the striker or
+        # the ball doesn't get scored multiple times
+        point_delay += 1
+        collision_delay += 1
+        if point_delay == 5:
             score = True
-        if j == 5:
+        if collision_delay == 5:
             collide = True
 
         # Someone has scored
@@ -322,10 +335,10 @@ def play(protocol, this_name, other_name, this_number):
         if point:
             ball.reset()
 
-        if this_playerScore == 10:
+        if this_player_score == 10:
             running = False
             end_game(protocol, "YOU WIN!!!!", WHITE)
-        elif other_playerScore == 10:
+        elif other_player_score == 10:
             running = False
             end_game(protocol, other_name + " WINS!!!!", RED)
 
@@ -335,16 +348,17 @@ def play(protocol, this_name, other_name, this_number):
         ball.display()
 
         # Displaying the scores of the players
+        this_player_score = thread.getScore()
         if this_number == 1:
             this_player.displayScore(this_player.nickname,
-                                     this_playerScore, 400, 20, GREEN)
+                                     this_player_score, 400, 20, GREEN)
             other_player.displayScore(other_player.nickname,
-                                      other_playerScore, WIDTH-400, 20, RED)
+                                      other_player_score, WIDTH-400, 20, RED)
         else:
             this_player.displayScore(this_player.nickname,
-                                     this_playerScore, WIDTH-400, 20, GREEN)
+                                     this_player_score, WIDTH-400, 20, GREEN)
             other_player.displayScore(other_player.nickname,
-                                      other_playerScore, 400, 20, RED)
+                                      other_player_score, 400, 20, RED)
 
         time.sleep(0.06)
         pygame.display.update()

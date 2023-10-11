@@ -108,14 +108,17 @@ void postGameStateResponse(player_t *player) {
   game_t game = get(player->gameId);
   char *payload = malloc(sizeof(char) * 100);
   char *paddle = malloc(sizeof(char) * 100);
+  char *score = malloc(sizeof(char) * 100);
 
   if (player->PlayerNumber == 1) {
     strcpy(paddle, game.rigthPaddle);
+    strcpy(score, game.score1);
   } else {
     strcpy(paddle, game.leftPaddle);
+    strcpy(score, game.score2);
   }
 
-  sprintf(payload, "%s %s %s %s %s %s", paddle, game.ball->x, game.ball->y,
+  sprintf(payload, "%s %s %s %s %s %s %s", paddle, score, game.ball->x, game.ball->y,
           game.ball->dx, game.ball->dy, game.ball->speed);
 
   response(player, POST_STATE, payload);
@@ -126,14 +129,16 @@ void postGameStateRequest(player_t *player, char **commandArgs) {
 
   if (player->PlayerNumber == 1) {
     game.leftPaddle = strdup(commandArgs[1]);
+		game.score2 = strdup(commandArgs[2]);
   } else {
     game.rigthPaddle = strdup(commandArgs[1]);
+		game.score1 = strdup(commandArgs[2]);
   }
-  game.ball->x = strdup(commandArgs[2]);
-  game.ball->y = strdup(commandArgs[3]);
-  game.ball->dx = strdup(commandArgs[4]);
-  game.ball->dy = strdup(commandArgs[5]);
-  game.ball->speed = strdup(commandArgs[6]);
+  game.ball->x = strdup(commandArgs[3]);
+  game.ball->y = strdup(commandArgs[4]);
+  game.ball->dx = strdup(commandArgs[5]);
+  game.ball->dy = strdup(commandArgs[6]);
+  game.ball->speed = strdup(commandArgs[7]);
 
   insert(player->gameId, game);
 
