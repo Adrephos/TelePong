@@ -233,10 +233,10 @@ class UpdateThread(threading.Thread):
         while True:
             self.update(self.other_player, self.ball)
 
+
 def send_current_state(protocol, this_player, other_player_score, ball):
     state = f'{round(this_player.posy, 2)} {other_player_score} {round(ball.posx, 2)} {round(ball.posy, 2)} {round(ball.xFac, 2)} {round(ball.yFac, 2)} {round(ball.speed, 2)}'
     protocol.send_msg(constants.POST_STATE, state)
-
 
 
 # Game Manager
@@ -305,9 +305,6 @@ def play(protocol, this_name, other_name, this_number):
         # Updating the objects
         this_player.update(this_playerFac)
         point = ball.update()
-
-        if point:
-            print("Point scored", point)
 
         # Detecting if a point is scored
         if point == score_indicator and score:
