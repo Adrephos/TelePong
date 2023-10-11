@@ -9,7 +9,6 @@
 #define START "START"
 #define POST_STATE "POST_STATE"
 #define GET_STATE "GET_STATE"
-#define END_GAME "END_GAME"
 #define QUIT "QUIT"
 #define SUCC "SUCC"
 #define ERR "ERR"

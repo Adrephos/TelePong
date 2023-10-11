@@ -1,12 +1,11 @@
 # Constants....
 
 PORT = 8080
+IP_SERVER = '127.0.0.1'
+
+# server constants
 ENCONDING_FORMAT = "utf-8"
 RECV_BUFFER_SIZE = 1024
-# Local IP
-IP_SERVER = '127.0.0.1'
-# Public Instance IP
-#IP_SERVER = ''
 
 # tpp methods
 REGISTER = 'REGISTER'
@@ -15,7 +14,6 @@ JOIN = 'JOIN'
 START = 'START'
 POST_STATE = 'POST_STATE'
 GET_STATE = 'GET_STATE'
-END_GAME = 'END_GAME'
 QUIT = 'QUIT'
 SUCC = 'SUCC'
 ERR = 'ERR'
