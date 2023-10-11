@@ -20,6 +20,8 @@ typedef struct {
 typedef struct {
   char *leftPaddle;
   char *rigthPaddle;
+	char *score1;
+	char *score2;
 	player_t *player1;
 	player_t *player2;
 	ball_t *ball;

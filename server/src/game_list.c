@@ -25,8 +25,10 @@ game_t *emptyGame() {
 
   empty_game->player1 = NULL;
   empty_game->player2 = NULL;
-	empty_game->leftPaddle = "20";
+	empty_game->score1 = "0";
+	empty_game->score2 = "0";
 	empty_game->rigthPaddle = "20";
+	empty_game->leftPaddle = "20";
 	empty_game->ball = ball;
 	empty_game->ball->x = "640";
 	empty_game->ball->y = "360";
