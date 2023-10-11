@@ -45,6 +45,7 @@ int logWrite(const char *type, const char *logRegister) {
   FILE *file;
   if ((file = fopen(pathVariable, "a")) == NULL) {
     printf("Error opening file %s\n", pathVariable);
+		exit(1);
     return 1;
   }
 

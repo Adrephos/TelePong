@@ -10,7 +10,7 @@ void *sendMsg(int ConnectFD, char *response) {
 	char *logMsg = malloc(sizeof(char) * 100);
   ssize_t bytesWritten = write(ConnectFD, response, strlen(response));
   if (bytesWritten == -1) {
-		sprintf(logMsg, "Write failed");
+		sprintf(logMsg, "Could not write to client FD %d", ConnectFD);
 		logWrite(ERR, logMsg);
     close(ConnectFD);
   }
@@ -37,14 +37,14 @@ void *manageClient(void *arg) {
     bytesRead = read(player.ConnectFD, buffer, sizeof(buffer));
 
     if (bytesRead == -1) {
-			sprintf(logMsg, "Read failed");
+			sprintf(logMsg, "Could not read from client FD %d", player.ConnectFD);
 			logWrite(ERR, logMsg);
       close(player.ConnectFD);
       break;
     }
 
     if (bytesRead == 0) {
-			sprintf(logMsg, "Client disconnected");
+			sprintf(logMsg, "Client with FD %d disconnected", player.ConnectFD);
 			logWrite(QUIT, logMsg);
       break;
     } else {
