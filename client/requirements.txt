@@ -1,0 +1,8 @@
+pygame==2.5.2
+pygame-ce==2.3.2
+pygame-gui==0.6.9
+pygame-menu==4.4.3
+pygame-textinput==1.0.1
+pyperclip==1.8.2
+python-i18n==0.3.9
+typing_extensions==4.8.0
