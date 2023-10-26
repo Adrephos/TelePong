@@ -1,7 +1,7 @@
 # Constants....
 
 PORT = 8080
-IP_SERVER = '127.0.0.1'
+IP_SERVER = '35.175.203.232'
 
 # server constants
 ENCONDING_FORMAT = "utf-8"
